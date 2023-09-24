@@ -1,0 +1,26 @@
+body{
+    
+    background-color: rgb(200, 192, 192);
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    margin: 10px 20px;
+    padding: 10px 10px;
+}
+
+
+.header{
+    background-color: aquamarine;
+    font-size: 2em;
+    font-weight: 700;
+    padding: 10px 20px;
+}
+
+.content{
+    background-color: aqua;
+    font-size: 1em;
+    padding: 10px 20px;
+
+}

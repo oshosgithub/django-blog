@@ -1,0 +1,260 @@
+Things to learn in django:
+  1) Uploading images
+  2) Creating superuser
+  3) Connecting CSS file to HTML file
+  4) Creating Form of the model using ModelForm
+  5) Searching method (two diffent ways)
+  6) Registering User 
+  7) Login and Logout User
+  8) Pagination 
+
+  9) Decorators
+  10) Signals
+
+================================================================================
+1) Uploading images 
+
+    step 1. python -m pip install Pillow  
+         (need to install Pillow extention)
+    step 2. have folder as static/images on the root directory. 
+    step 3. on settings files, write following:
+        STATIC_URL = 'static/'
+
+        STATICFILES_DIRS = [
+             BASE_DIR/'static',
+            ]
+
+        MEDIA_URL = '/images/'
+
+        MEDIA_ROOT = BASE_DIR/'static/images'
+
+    step 4. on the root file urls, write:
+       from django.conf.urls.static import static
+       from django.conf import settings
+
+       Then,
+       urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    step 5. On model, use models.ImageField 
+
+    step 6: on HTML file <img src="{{user.profile_pic.url}}" to connect each url to its object. 
+
+ --> uploading images from HTML page via django ModelForm
+
+      Follow number 1, then as follows. 
+     
+     Step 1:
+      class ModelName(models.Model):
+            image = models.ImageField(default='/profile_pic.jpeg'null=True, blank=True, upload_to='images/')
+
+     Step 2:
+        make sure on HTML page form tag contain enctype which basically allows images to be uploaded. 
+
+        <form method="POST" action='' enctype='multipart/form-data'>
+
+------------------------------------------------------------------------------------------
+
+2) Creating superuser, type: 
+
+      python manage.py createsuperuser
+
+----------------------------------------------------------------------------------------
+3 ) connecting CSS files to HTML
+
+   step 1: make sure all css files are rootapp/static/css/demo.css in this pattern
+   step 2: Very top of the HTML page, write {% load static %}
+   step 3: on <link> tag href="{% static 'css/demo.css' %}"
+
+   Can use {% block style %} {% endblock %} to specify each HTML page with each CSS file for each page. 
+--------------------------------------------------------------------------------------
+4) Creating form using Model form
+   
+   step 1: make forms.py
+   step 2: from django.forms import ModelForm
+   step 3: class ExampleForm(ModelForm):
+                          class Meta:
+                                 model = NameOfModel
+                                 fields = '__all__' or ['each field of the model', '']
+
+                                 exclude = ['sdfs', 'sdf'] (to exclude anything)
+-------------------------------------------------------------------------------------
+5) Search method number 1:
+   
+   step 1: from django.db.models import Q
+   step 2: make the view function  Q(modelAttribute__icontains=query)
+   step 3: make search form as below
+    <form method="GET" action="{% %}"> #Must need action=connection to the search function.
+      <input name='q'>      #name 'q' is the searching parameter. 
+      <button type="submit">Search</button>
+    </form>
+
+    METHOD NUBMER 2 using django-filer extension
+
+    step 1: pip install django-filter 
+    step 2: add 'django_filters' in settings. 
+    step 3: make a new file name filters.py
+        Then,
+        import django_filters
+        from django_filters import CharFilter
+        from .models import nameOfTheModel 
+
+    Sample Model Filer Code in filters.py file. 
+    
+         class BlogFilter(django_filters.FilterSet):
+         class Meta:
+            model = Blog
+            fields = ['category',]
+
+         title = CharFilter(field_name='title', lookup_expr='icontains')
+         content = CharFilter(field_name='content', lookup_expr='icontains')
+
+--------------------------------------------------------------------------------------
+6) Registering user
+
+ step 1: on forms.py import as follows:
+    from django.contrib.auth.forms import UserCreationForm
+    from django.contrib.auth.models import User
+
+ step 2: create RegisterFormName(UserCreationForm):
+      SAMPLE: 
+      class RegisterUser(UserCreationForm):
+               class Meta:
+                     model = User
+                     fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2',]
+         
+ 
+ step 3: make view
+     SAMPLE: 
+      def register_user(request):
+         form = RegisterUser()
+         if request.method == "POST":
+             form = RegisterUser(request.POST or None)
+             if form.is_valid:
+               form.save()
+               return redirect('/')
+      context={
+        'form':form
+      }
+      return render(request, 'blog/register.html', context)
+
+
+      BONUS:
+      to show succes message that user created. 
+
+      step 1: import 
+        from django.contrib import messages
+       
+      step 2: 
+        SAMPLE: 
+        def register_user(request):
+                form = RegisterUser()
+                     if request.method == "POST":
+                        form = RegisterUser(request.POST or None)
+                        if form.is_valid:
+                              form.save()
+
+                              #these two line will make the success message. 
+                              user = form.cleaned_data.get('username') #to get the username just created. 
+                              messages.success(request, f'Account created for {user}')
+
+                              return redirect('/')
+                     context={
+                        'form':form
+                     }
+                     return render(request, 'blog/register.html', context)
+      
+----------------------------------------------------------------------------------
+7) to login and logout user
+
+step 1: import on views.py page
+
+from django.contrib.auth import authenticate, login, logout
+
+
+SAMPLE: on login.html page
+  <form method='POST'>
+    {%csrf_token%}
+    <input name='username' placeholder='Username'>
+    <input name='password' placeholder='Password'>
+    <button type='submit'>Sign in</button>
+  </form>
+
+
+SAMPLE: function on views.py page 
+#login function
+def login_user(request):
+    username = request.POST.get('username')
+    password = request.POST.get('password')
+    user = authenticate(request, username=username, password=password)
+    if user:
+        login(request, user)
+        return redirect('/')
+    return render(request, 'blog/login.html')
+
+#logout function
+def logout_user(request):
+    logout(request)
+    return redirect('/')
+
+-------------------------------------------------------------------------------------
+8) pagination
+
+
+step 1: import on the views.py
+from django.core.paginator import Paginator 
+(you can apply paginator to each view if you want)
+
+step 2: SAMPLE functon to write 
+
+def home(request):
+    #set up pagination
+    p = Paginator(Blog.objects.all(), 2)
+    page = request.GET.get('page')
+    blog = p.get_page(page)
+    context ={
+        'blog': blog,
+    }
+    return render(request, 'blog/home.html', context)
+
+step 3: SAMPLE on the HTML page 
+     <center>
+      <a href='?page=1'>First</a>
+      {% if blog.has_previous %}
+      <a href='?page={{blog.previous_page_number}}'>Previous</a>
+      {% endif %}
+      <a href='?page={{blog.paginator.number}}'>{{blog.paginator.number}}</a>
+      {% if blog.has_next %}
+      <a href='?page={{blog.next_page_number}}'>Next</a>
+      {% endif %}
+      <a href='?page={{blog.paginator.num_pages}}'>Last</a>
+    </center>
+
+
+
+    <center>
+    {{blog}}<br>
+    Has Previous Page: {{blog.has_previous}}<br>
+    Has Next Page: {{blog.has_next}}<br>
+    Current Page: {{blog.number}}<br>
+    Total Pages: {{blog.paginator.num_pages}}<br>
+    </center>
+----------------------------------------------------------------------------------
+9) Decorator 
+   step 1: import 
+   from django.contrib.auth.decorators import login_required
+
+   step 2: put in on top of the view function you want to restraint 
+         @login_required(login_url='login')
+         def functionname...
+
+------------------------------------------------------------------------------------
+10)
+      
+
+
+
+     
+
+
+                                 
+

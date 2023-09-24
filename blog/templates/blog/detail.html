@@ -1,0 +1,25 @@
+{% extends 'blog/home.html' %}
+{% load static %}
+{% block title %}
+    <title> detail </title>
+{% endblock %}
+
+
+{% block style %}
+     <link rel='stylesheet' href='{% static "css/detail.css" %}'>
+{% endblock %}
+
+{% block content %}
+<center>
+   <div class="container">
+      <div class='header'>
+        {{blog.title}}
+      </div>
+
+      <div class='content'>
+         {{blog.content}}
+      </div>
+
+   </div>
+</center>
+{% endblock %}

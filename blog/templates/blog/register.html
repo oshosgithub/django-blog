@@ -1,0 +1,28 @@
+
+{% extends "blog/home.html " %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static '#' %}">
+{% endblock %}
+
+{% block title %}
+     <title>Register</title>
+{% endblock %}
+
+
+
+
+
+{% block content %}
+<center>
+<form class='text-start' method="POST" action=''>
+{% csrf_token %}
+{{form.as_p}}
+<input type='submit'/>
+</form>
+</center>
+
+{% endblock %}
+ 
+

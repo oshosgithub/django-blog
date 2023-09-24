@@ -1,0 +1,21 @@
+
+{% extends "blog/home.html " %}
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" type="text/css" href="{% static '#' %}">
+{% endblock %}
+
+{% block title %}
+     <title>#</title>
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+{% endblock %}
+ 
+

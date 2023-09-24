@@ -1,0 +1,54 @@
+{% extends "blog/home.html " %}
+{% load static %}
+
+{% block style %}
+<style>
+    body{
+        background-color: steelblue;
+    }
+    .content{
+        background-color: white;
+        font-size: 1em;
+    }
+
+    .title{
+        background-color: green;
+        font-weigt:bold;
+    }
+</style>
+    <link rel="stylesheet" type="text/css" href="{% static '#' %}">
+{% endblock %}
+
+{% block title %}
+     <title>Detail Search</title>
+{% endblock %}
+
+
+
+
+
+{% block content %}
+<form method='GET'>
+<div class='container justify-content-center bg-primary m-5 p-5'>
+    <div class='row p-3 justify-content-center bg-danger text-start'>
+            <div>Title: {{myFilter.form.title}}</div>
+            <div>Content: {{myFilter.form.content}}</div>
+            <div>Category:{{myFilter.form.category}}</div>
+            <div>
+                <button type='submit'>Search</button>
+            </div>
+    </div>
+</div>
+</form>
+
+{% for blog in blog %}
+<div class='container row bg-info m-5 p-5'>
+    <div class="title">{{blog.title}}</div>
+    <div class="categor">Category: {{blog.category}}</div>
+    <div class='content'>{{blog.content}}</div>
+</div>
+{% endfor %}
+
+{% endblock %}
+ 
+
